@@ -1,0 +1,311 @@
+/* @bestillpass/analytics — Default Theme
+ *
+ * Import this file for sensible defaults:
+ *   import '@bestillpass/analytics/theme.css';
+ *
+ * Override any variable in your own CSS:
+ *   [data-analytics] { --analytics-primary: #your-color; }
+ */
+
+[data-analytics] {
+  --analytics-primary: #3b82f6;
+  --analytics-primary-hover: #2563eb;
+  --analytics-primary-light: #dbeafe;
+  --analytics-bg: #ffffff;
+  --analytics-bg-card: #ffffff;
+  --analytics-border: #e5e7eb;
+  --analytics-text: #111827;
+  --analytics-text-muted: #6b7280;
+  --analytics-muted-bg: #f3f4f6;
+  --analytics-radius: 0.375rem;
+  --analytics-font: system-ui, -apple-system, sans-serif;
+  --analytics-success: #22c55e;
+  --analytics-warning: #f59e0b;
+  --analytics-danger: #ef4444;
+  --analytics-chart-1: #3b82f6;
+  --analytics-chart-2: #8b5cf6;
+  --analytics-chart-3: #06b6d4;
+  --analytics-chart-4: #f59e0b;
+  --analytics-chart-5: #ef4444;
+
+  font-family: var(--analytics-font);
+  color: var(--analytics-text);
+}
+
+/* Card */
+[data-analytics-card] {
+  background: var(--analytics-bg-card);
+  border: 1px solid var(--analytics-border);
+  border-radius: var(--analytics-radius);
+  padding: 1rem;
+}
+
+/* Metric */
+[data-analytics-metric] {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+[data-analytics-metric-label] {
+  font-size: 0.875rem;
+  color: var(--analytics-text-muted);
+}
+
+[data-analytics-metric-value] {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+/* Horizontal bar */
+[data-analytics-bar] {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+[data-analytics-bar-label] {
+  color: var(--analytics-text-muted);
+  flex-shrink: 0;
+}
+
+[data-analytics-bar-track] {
+  flex: 1;
+  background: var(--analytics-muted-bg);
+  border-radius: 9999px;
+  height: 1rem;
+  overflow: hidden;
+}
+
+[data-analytics-bar-fill] {
+  background: var(--analytics-primary);
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+}
+
+[data-analytics-bar-value] {
+  flex-shrink: 0;
+  text-align: right;
+}
+
+/* Date range picker */
+[data-analytics-picker] {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+[data-analytics-picker] button {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--analytics-border);
+  border-radius: var(--analytics-radius);
+  background: var(--analytics-bg);
+  color: var(--analytics-text);
+  cursor: pointer;
+}
+
+[data-analytics-picker] button[data-active="true"] {
+  background: var(--analytics-primary);
+  color: white;
+  border-color: var(--analytics-primary);
+}
+
+[data-analytics-picker] input[type="date"] {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.375rem;
+  border: 1px solid var(--analytics-border);
+  border-radius: var(--analytics-radius);
+  background: var(--analytics-bg);
+}
+
+/* Table */
+[data-analytics-table] {
+  font-size: 0.75rem;
+  width: 100%;
+}
+
+[data-analytics-table-header] {
+  display: grid;
+  font-weight: 500;
+  color: var(--analytics-text-muted);
+  border-bottom: 1px solid var(--analytics-border);
+  padding-bottom: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+[data-analytics-table-row] {
+  display: grid;
+  padding: 0.125rem 0;
+}
+
+/* Event list */
+[data-analytics-event] {
+  border: 1px solid var(--analytics-border);
+  border-radius: var(--analytics-radius);
+}
+
+[data-analytics-event-header] {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  color: var(--analytics-text);
+}
+
+[data-analytics-event-header]:hover {
+  background: var(--analytics-muted-bg);
+}
+
+[data-analytics-event-details] {
+  padding: 0.25rem 0.75rem 0.75rem;
+  border-top: 1px solid var(--analytics-border);
+  background: var(--analytics-muted-bg);
+  font-size: 0.75rem;
+}
+
+/* Filter chips */
+[data-analytics-filter] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+[data-analytics-filter] button {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border: none;
+  border-radius: var(--analytics-radius);
+  background: transparent;
+  color: var(--analytics-text-muted);
+  cursor: pointer;
+}
+
+[data-analytics-filter] button[data-active="true"] {
+  background: var(--analytics-primary);
+  color: white;
+}
+
+/* Widget sections */
+[data-analytics-widget] {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+[data-analytics-widget-header] {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+[data-analytics-widget-title] {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* Grid layouts */
+[data-analytics-grid] {
+  display: grid;
+  gap: 1rem;
+}
+
+[data-analytics-grid="2"] {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+[data-analytics-grid="3"] {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+[data-analytics-grid="4"] {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+/* Bar chart (vertical) */
+[data-analytics-barchart] {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  position: relative;
+}
+
+[data-analytics-barchart-bar] {
+  flex: 1;
+  background: var(--analytics-primary);
+  border-radius: 2px 2px 0 0;
+  min-height: 2px;
+  transition: height 0.3s ease;
+}
+
+[data-analytics-barchart-bar]:hover {
+  background: var(--analytics-primary-hover);
+}
+
+/* Loading */
+[data-analytics-loading] {
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+  color: var(--analytics-text-muted);
+}
+
+/* Empty state */
+[data-analytics-empty] {
+  text-align: center;
+  padding: 1rem;
+  color: var(--analytics-text-muted);
+  font-size: 0.875rem;
+}
+
+/* Dashboard layout */
+[data-analytics-dashboard] {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* List items (top pages, referrers, etc.) */
+[data-analytics-list-item] {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  padding: 0.125rem 0;
+}
+
+[data-analytics-list-label] {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: 1rem;
+}
+
+[data-analytics-list-value] {
+  color: var(--analytics-text-muted);
+  flex-shrink: 0;
+}
+
+/* Section titles */
+[data-analytics-section-title] {
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  [data-analytics-grid="3"],
+  [data-analytics-grid="4"] {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

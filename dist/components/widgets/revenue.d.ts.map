@@ -1,0 +1,1 @@
+{"version":3,"file":"revenue.d.ts","sourceRoot":"","sources":["../../../src/components/widgets/revenue.tsx"],"names":[],"mappings":"AAMA,UAAU,kBAAkB;IAC1B,QAAQ,CAAC,EAAE,MAAM,CAAC;IAClB,SAAS,CAAC,EAAE,MAAM,CAAC;IACnB,uDAAuD;IACvD,cAAc,CAAC,EAAE,CAAC,MAAM,EAAE,MAAM,KAAK,MAAM,CAAC;CAC7C;AAED,wBAAgB,aAAa,CAAC,EAC5B,QAA2B,EAC3B,SAAS,EACT,cAAkD,GACnD,EAAE,kBAAkB,2CAuDpB"}

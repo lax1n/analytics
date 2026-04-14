@@ -1,0 +1,6 @@
+"use client";
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+export function DateRangePicker({ range, from, to, onPreset, onFromChange, onToChange, onCustom, className, }) {
+    return (_jsxs("div", { "data-analytics-picker": true, className: className, children: [_jsx("div", { style: { display: "flex", gap: "0.25rem" }, children: ["24h", "7d", "30d"].map((r) => (_jsx("button", { "data-active": range === r && !from ? "true" : undefined, onClick: () => onPreset(r), children: r === "24h" ? "24h" : r }, r))) }), _jsxs("div", { style: { display: "flex", alignItems: "center", gap: "0.25rem" }, children: [_jsx("input", { type: "date", value: from, onChange: (e) => onFromChange(e.target.value) }), _jsx("span", { style: { fontSize: "0.75rem", color: "var(--analytics-text-muted)" }, children: "\u2192" }), _jsx("input", { type: "date", value: to, onChange: (e) => onToChange(e.target.value) }), from && _jsx("button", { onClick: onCustom, children: "Go" })] })] }));
+}
+//# sourceMappingURL=date-range-picker.js.map

@@ -1,0 +1,1 @@
+{"version":3,"file":"metric-card.d.ts","sourceRoot":"","sources":["../../../src/components/primitives/metric-card.tsx"],"names":[],"mappings":"AAAA,UAAU,eAAe;IACvB,KAAK,EAAE,MAAM,CAAC;IACd,KAAK,EAAE,MAAM,GAAG,MAAM,CAAC;IACvB,QAAQ,CAAC,EAAE,MAAM,CAAC;IAClB,SAAS,CAAC,EAAE,MAAM,CAAC;CACpB;AAED,wBAAgB,UAAU,CAAC,EACzB,KAAK,EACL,KAAK,EACL,QAAQ,EACR,SAAS,GACV,EAAE,eAAe,2CAiBjB"}

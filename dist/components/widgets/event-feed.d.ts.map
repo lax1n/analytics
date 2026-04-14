@@ -1,0 +1,1 @@
+{"version":3,"file":"event-feed.d.ts","sourceRoot":"","sources":["../../../src/components/widgets/event-feed.tsx"],"names":[],"mappings":"AAKA,UAAU,oBAAoB;IAC5B,QAAQ,CAAC,EAAE,MAAM,CAAC;IAClB,SAAS,CAAC,EAAE,MAAM,CAAC;CACpB;AAED,wBAAgB,eAAe,CAAC,EAC9B,QAA2B,EAC3B,SAAS,GACV,EAAE,oBAAoB,2CAiCtB"}

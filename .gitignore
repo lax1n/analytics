@@ -1,0 +1,2 @@
+node_modules
+# dist/ is committed (pre-built for GitHub install)

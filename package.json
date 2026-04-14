@@ -1,0 +1,71 @@
+{
+  "name": "@bestillpass/analytics",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./schema": {
+      "types": "./dist/schema.d.ts",
+      "default": "./dist/schema.js"
+    },
+    "./middleware": {
+      "types": "./dist/middleware/gclid.d.ts",
+      "default": "./dist/middleware/gclid.js"
+    },
+    "./handlers/track": {
+      "types": "./dist/handlers/track.d.ts",
+      "default": "./dist/handlers/track.js"
+    },
+    "./handlers/events": {
+      "types": "./dist/handlers/events.d.ts",
+      "default": "./dist/handlers/events.js"
+    },
+    "./handlers/analytics": {
+      "types": "./dist/handlers/admin/analytics.d.ts",
+      "default": "./dist/handlers/admin/analytics.js"
+    },
+    "./handlers/funnel": {
+      "types": "./dist/handlers/admin/funnel.d.ts",
+      "default": "./dist/handlers/admin/funnel.js"
+    },
+    "./handlers/event-feed": {
+      "types": "./dist/handlers/admin/events.d.ts",
+      "default": "./dist/handlers/admin/events.js"
+    },
+    "./hooks": {
+      "types": "./dist/hooks/index.d.ts",
+      "default": "./dist/hooks/index.js"
+    },
+    "./components": {
+      "types": "./dist/components/index.d.ts",
+      "default": "./dist/components/index.js"
+    },
+    "./theme.css": "./dist/theme.css"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc && cp src/theme.css dist/theme.css",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "drizzle-orm": "^0.45.0",
+    "next": ">=14.0.0",
+    "react": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "@types/react": "^19.0.0",
+    "drizzle-orm": "^0.45.2",
+    "next": "^16.0.0",
+    "react": "^19.0.0",
+    "typescript": "^5.7.0"
+  }
+}
