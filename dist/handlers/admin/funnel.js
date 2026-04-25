@@ -3,7 +3,7 @@ import { getConfig } from "../../config.js";
 import { pageViews, analyticsEvents } from "../../schema.js";
 import { rateLimit as defaultRateLimit } from "../../lib/rate-limit.js";
 import { parseDateRange } from "../../lib/date-range.js";
-import { sql, gte, lte, and, eq, countDistinct, isNotNull, } from "drizzle-orm";
+import { sql, gte, lte, and, eq, countDistinct, } from "drizzle-orm";
 export function createFunnelHandler() {
     async function GET(request) {
         const config = getConfig();
@@ -49,41 +49,57 @@ export function createFunnelHandler() {
                     .where(and(pvDateFilter, sql `${pageViews.path} LIKE ${stage.query.path}`));
             }
         });
-        // Also query breakdowns
+        // Breakdowns use first-touch attribution per session: a session's source,
+        // device, and keyword are taken from its earliest page view in the window.
+        // Without this, internal navigations (which have utm_source=NULL → "direct")
+        // double-count ad-driven sessions in the "direct" bucket.
         const [stageResults, bySourceRows, byDeviceRows, byKeywordRows] = await Promise.all([
             Promise.all(stageQueries),
-            // By source
-            db
-                .select({
-                source: sql `COALESCE(${pageViews.utmSource}, 'direct')`.as("source"),
-                visitors: countDistinct(pageViews.sessionId),
-            })
-                .from(pageViews)
-                .where(pvDateFilter)
-                .groupBy(sql `source`)
-                .orderBy(sql `${countDistinct(pageViews.sessionId)} DESC`)
-                .limit(10),
-            // By device
-            db
-                .select({
-                device: sql `COALESCE(${pageViews.deviceType}, 'unknown')`.as("device"),
-                visitors: countDistinct(pageViews.sessionId),
-            })
-                .from(pageViews)
-                .where(pvDateFilter)
-                .groupBy(sql `device`)
-                .orderBy(sql `${countDistinct(pageViews.sessionId)} DESC`),
-            // By keyword
-            db
-                .select({
-                keyword: pageViews.utmTerm,
-                visitors: countDistinct(pageViews.sessionId),
-            })
-                .from(pageViews)
-                .where(and(pvDateFilter, isNotNull(pageViews.utmTerm)))
-                .groupBy(pageViews.utmTerm)
-                .orderBy(sql `${countDistinct(pageViews.sessionId)} DESC`)
-                .limit(10),
+            // By source — first-touch
+            db.execute(sql `
+          SELECT source, COUNT(DISTINCT sid) AS visitors
+          FROM (
+            SELECT DISTINCT ON (session_id)
+              session_id AS sid,
+              COALESCE(utm_source, 'direct') AS source
+            FROM ${pageViews}
+            WHERE ${pvDateFilter}
+            ORDER BY session_id, created_at ASC
+          ) ft
+          GROUP BY source
+          ORDER BY visitors DESC
+          LIMIT 10
+        `),
+            // By device — first-touch
+            db.execute(sql `
+          SELECT device, COUNT(DISTINCT sid) AS visitors
+          FROM (
+            SELECT DISTINCT ON (session_id)
+              session_id AS sid,
+              COALESCE(device_type, 'unknown') AS device
+            FROM ${pageViews}
+            WHERE ${pvDateFilter}
+            ORDER BY session_id, created_at ASC
+          ) ft
+          GROUP BY device
+          ORDER BY visitors DESC
+        `),
+            // By keyword — first-touch (only sessions that landed with a utm_term)
+            db.execute(sql `
+          SELECT keyword, COUNT(DISTINCT sid) AS visitors
+          FROM (
+            SELECT DISTINCT ON (session_id)
+              session_id AS sid,
+              utm_term AS keyword
+            FROM ${pageViews}
+            WHERE ${pvDateFilter}
+            ORDER BY session_id, created_at ASC
+          ) ft
+          WHERE keyword IS NOT NULL
+          GROUP BY keyword
+          ORDER BY visitors DESC
+          LIMIT 10
+        `),
         ]);
         // Build stages array
         const stages = config.funnel.stages.map((stage, i) => ({
@@ -99,65 +115,92 @@ export function createFunnelHandler() {
         // If last stage is an event, get breakdowns for it
         if (lastStage && typeof lastStage.query === "object" && "event" in lastStage.query) {
             const eventName = lastStage.query.event;
+            // Conversion breakdowns also use first-touch attribution: a session's
+            // source/device/keyword come from its earliest page view in the window,
+            // not from every page view it had. Otherwise a converted session that
+            // landed via google then internally navigated (utm_source=NULL) would
+            // count under both "google" and "direct".
             const [convertedBySource, convertedByDevice, convertedByKeyword] = await Promise.all([
-                // Join events to pageViews via sessionId to get source
-                db
-                    .select({
-                    source: sql `COALESCE(${pageViews.utmSource}, 'direct')`.as("source"),
-                    converted: countDistinct(analyticsEvents.sessionId),
-                })
-                    .from(analyticsEvents)
-                    .innerJoin(pageViews, eq(analyticsEvents.sessionId, pageViews.sessionId))
-                    .where(and(evDateFilter, eq(analyticsEvents.eventName, eventName)))
-                    .groupBy(sql `source`)
-                    .limit(10),
-                db
-                    .select({
-                    device: sql `COALESCE(${pageViews.deviceType}, 'unknown')`.as("device"),
-                    converted: countDistinct(analyticsEvents.sessionId),
-                })
-                    .from(analyticsEvents)
-                    .innerJoin(pageViews, eq(analyticsEvents.sessionId, pageViews.sessionId))
-                    .where(and(evDateFilter, eq(analyticsEvents.eventName, eventName)))
-                    .groupBy(sql `device`),
-                db
-                    .select({
-                    keyword: pageViews.utmTerm,
-                    converted: countDistinct(analyticsEvents.sessionId),
-                })
-                    .from(analyticsEvents)
-                    .innerJoin(pageViews, eq(analyticsEvents.sessionId, pageViews.sessionId))
-                    .where(and(evDateFilter, eq(analyticsEvents.eventName, eventName), isNotNull(pageViews.utmTerm)))
-                    .groupBy(pageViews.utmTerm)
-                    .limit(10),
+                db.execute(sql `
+            SELECT ft.source, COUNT(DISTINCT ae.session_id) AS converted
+            FROM ${analyticsEvents} ae
+            JOIN (
+              SELECT DISTINCT ON (session_id)
+                session_id AS sid,
+                COALESCE(utm_source, 'direct') AS source
+              FROM ${pageViews}
+              WHERE ${pvDateFilter}
+              ORDER BY session_id, created_at ASC
+            ) ft ON ft.sid = ae.session_id
+            WHERE ae.event_name = ${eventName} AND ${evDateFilter}
+            GROUP BY ft.source
+            LIMIT 10
+          `),
+                db.execute(sql `
+            SELECT ft.device, COUNT(DISTINCT ae.session_id) AS converted
+            FROM ${analyticsEvents} ae
+            JOIN (
+              SELECT DISTINCT ON (session_id)
+                session_id AS sid,
+                COALESCE(device_type, 'unknown') AS device
+              FROM ${pageViews}
+              WHERE ${pvDateFilter}
+              ORDER BY session_id, created_at ASC
+            ) ft ON ft.sid = ae.session_id
+            WHERE ae.event_name = ${eventName} AND ${evDateFilter}
+            GROUP BY ft.device
+          `),
+                db.execute(sql `
+            SELECT ft.keyword, COUNT(DISTINCT ae.session_id) AS converted
+            FROM ${analyticsEvents} ae
+            JOIN (
+              SELECT DISTINCT ON (session_id)
+                session_id AS sid,
+                utm_term AS keyword
+              FROM ${pageViews}
+              WHERE ${pvDateFilter}
+              ORDER BY session_id, created_at ASC
+            ) ft ON ft.sid = ae.session_id
+            WHERE ae.event_name = ${eventName} AND ${evDateFilter}
+              AND ft.keyword IS NOT NULL
+            GROUP BY ft.keyword
+            LIMIT 10
+          `),
             ]);
-            for (const row of convertedBySource) {
-                lastStageCountBySource.set(row.source, row.converted);
+            const sourceRows = convertedBySource.rows ?? convertedBySource;
+            const deviceRows = convertedByDevice.rows ?? convertedByDevice;
+            const keywordRows = convertedByKeyword.rows ?? convertedByKeyword;
+            for (const row of sourceRows) {
+                lastStageCountBySource.set(row.source, Number(row.converted));
             }
-            for (const row of convertedByDevice) {
-                lastStageCountByDevice.set(row.device, row.converted);
+            for (const row of deviceRows) {
+                lastStageCountByDevice.set(row.device, Number(row.converted));
             }
-            for (const row of convertedByKeyword) {
+            for (const row of keywordRows) {
                 if (row.keyword)
-                    lastStageCountByKeyword.set(row.keyword, row.converted);
+                    lastStageCountByKeyword.set(row.keyword, Number(row.converted));
             }
         }
-        // Build breakdown arrays
-        const bySource = bySourceRows.map((row) => ({
+        // db.execute returns { rows: [...] } on pg drivers, plain array on others.
+        // Counts come back as strings from raw SQL (COUNT()) — coerce to number.
+        const bySourceList = (bySourceRows.rows ?? bySourceRows);
+        const byDeviceList = (byDeviceRows.rows ?? byDeviceRows);
+        const byKeywordList = (byKeywordRows.rows ?? byKeywordRows);
+        const bySource = bySourceList.map((row) => ({
             source: row.source,
-            visitors: row.visitors,
+            visitors: Number(row.visitors),
             converted: lastStageCountBySource.get(row.source) ?? 0,
         }));
-        const byDevice = byDeviceRows
+        const byDevice = byDeviceList
             .filter((d) => d.device !== "unknown")
             .map((row) => ({
             device: row.device,
-            visitors: row.visitors,
+            visitors: Number(row.visitors),
             converted: lastStageCountByDevice.get(row.device) ?? 0,
         }));
-        const byKeyword = byKeywordRows.map((row) => ({
+        const byKeyword = byKeywordList.map((row) => ({
             keyword: row.keyword ?? "",
-            visitors: row.visitors,
+            visitors: Number(row.visitors),
             converted: lastStageCountByKeyword.get(row.keyword ?? "") ?? 0,
         }));
         // Conversion rates between consecutive stages

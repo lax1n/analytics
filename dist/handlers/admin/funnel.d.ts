@@ -9,9 +9,21 @@ export declare function createFunnelHandler(): {
             label: string;
             count: any;
         }[];
-        bySource: any;
-        byDevice: any;
-        byKeyword: any;
+        bySource: {
+            source: string;
+            visitors: number;
+            converted: number;
+        }[];
+        byDevice: {
+            device: string;
+            visitors: number;
+            converted: number;
+        }[];
+        byKeyword: {
+            keyword: string;
+            visitors: number;
+            converted: number;
+        }[];
         conversionRates: {
             label: string;
             from: string;
