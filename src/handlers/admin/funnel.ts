@@ -55,6 +55,14 @@ export function createFunnelHandler() {
         )
       : gte(analyticsEvents.createdAt, since);
 
+    // Same filter but referencing the `ae` alias used in the raw-SQL JOIN
+    // queries below. We can't reuse `evDateFilter` there because Drizzle
+    // expands `analyticsEvents.createdAt` to "analytics_events"."created_at",
+    // which Postgres rejects once the table is aliased.
+    const evDateFilterAliased = until
+      ? sql`ae.created_at >= ${since} AND ae.created_at <= ${until}`
+      : sql`ae.created_at >= ${since}`;
+
     // Query each funnel stage
     const stageQueries = config.funnel.stages.map((stage: FunnelStage) => {
       if (stage.query === "sessions") {
@@ -174,7 +182,7 @@ export function createFunnelHandler() {
               WHERE ${pvDateFilter}
               ORDER BY session_id, created_at ASC
             ) ft ON ft.sid = ae.session_id
-            WHERE ae.event_name = ${eventName} AND ${evDateFilter}
+            WHERE ae.event_name = ${eventName} AND ${evDateFilterAliased}
             GROUP BY ft.source
             LIMIT 10
           `),
@@ -189,7 +197,7 @@ export function createFunnelHandler() {
               WHERE ${pvDateFilter}
               ORDER BY session_id, created_at ASC
             ) ft ON ft.sid = ae.session_id
-            WHERE ae.event_name = ${eventName} AND ${evDateFilter}
+            WHERE ae.event_name = ${eventName} AND ${evDateFilterAliased}
             GROUP BY ft.device
           `),
           db.execute(sql`
@@ -203,7 +211,7 @@ export function createFunnelHandler() {
               WHERE ${pvDateFilter}
               ORDER BY session_id, created_at ASC
             ) ft ON ft.sid = ae.session_id
-            WHERE ae.event_name = ${eventName} AND ${evDateFilter}
+            WHERE ae.event_name = ${eventName} AND ${evDateFilterAliased}
               AND ft.keyword IS NOT NULL
             GROUP BY ft.keyword
             LIMIT 10
