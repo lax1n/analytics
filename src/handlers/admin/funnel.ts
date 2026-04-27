@@ -59,9 +59,16 @@ export function createFunnelHandler() {
     // queries below. We can't reuse `evDateFilter` there because Drizzle
     // expands `analyticsEvents.createdAt` to "analytics_events"."created_at",
     // which Postgres rejects once the table is aliased.
-    const evDateFilterAliased = until
-      ? sql`ae.created_at >= ${since} AND ae.created_at <= ${until}`
-      : sql`ae.created_at >= ${since}`;
+    //
+    // Date params must be ISO strings — the raw `sql\`\`` template doesn't
+    // get the column-type coercion the typed query builder applies, so a
+    // bare `Date` reaches the postgres driver and is rejected with
+    // "Received an instance of Date" (TypeError ERR_INVALID_ARG_TYPE).
+    const sinceIso = since.toISOString();
+    const untilIso = until?.toISOString();
+    const evDateFilterAliased = untilIso
+      ? sql`ae.created_at >= ${sinceIso} AND ae.created_at <= ${untilIso}`
+      : sql`ae.created_at >= ${sinceIso}`;
 
     // Query each funnel stage
     const stageQueries = config.funnel.stages.map((stage: FunnelStage) => {
