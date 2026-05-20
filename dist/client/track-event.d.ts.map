@@ -1,1 +1,1 @@
-{"version":3,"file":"track-event.d.ts","sourceRoot":"","sources":["../../src/client/track-event.ts"],"names":[],"mappings":"AAAA;;;GAGG;AACH,wBAAgB,UAAU,CACxB,IAAI,EAAE,MAAM,EACZ,UAAU,CAAC,EAAE,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,EACpC,QAAQ,GAAE,MAAyB,GAClC,IAAI,CAuBN"}
+{"version":3,"file":"track-event.d.ts","sourceRoot":"","sources":["../../src/client/track-event.ts"],"names":[],"mappings":"AAAA;;;;;;;;GAQG;AACH,wBAAgB,UAAU,CACxB,IAAI,EAAE,MAAM,EACZ,UAAU,CAAC,EAAE,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,EACpC,QAAQ,GAAE,MAAyB,EACnC,MAAM,GAAE,MAAa,GACpB,IAAI,CAuBN"}
